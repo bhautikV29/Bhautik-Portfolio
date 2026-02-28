@@ -27,6 +27,21 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Lock body scroll when mobile menu is open to prevent content bleeding through
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.touchAction = 'none'
+    } else {
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
+    }
+  }, [mobileOpen])
+
   const navBg = scrolled
     ? 'bg-elevated/95 dark:bg-dark-900/95 backdrop-blur-xl border-b border-[var(--border-subtle)] shadow-card'
     : 'bg-transparent'
@@ -112,15 +127,17 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-elevated/98 dark:bg-dark-900/98 backdrop-blur-xl z-50 md:hidden"
+            className="fixed inset-0 z-[60] md:hidden"
             onClick={() => setMobileOpen(false)}
           >
+            {/* Backdrop: dimmed, no scroll through */}
+            <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm" aria-hidden />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween' }}
-              className="flex flex-col items-center justify-center min-h-screen gap-6"
+              className="absolute inset-y-0 right-0 z-10 w-full max-w-sm flex flex-col items-center justify-center min-h-screen gap-6 bg-elevated shadow-2xl overflow-y-auto overscroll-contain"
               onClick={(e) => e.stopPropagation()}
             >
               <button
